@@ -39,12 +39,16 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    log.Println("File: " + file)
+
     // Get the last modified for the file
     lastModified, err := getRemoteFileLastModified(file)
     if err != nil {
         returnError(400, err, w)
         return
     }
+
+    log.Println("Remote Last-Modified: " + strconv.FormatInt(lastModified, 10))
 
     // Get the last modified for the local file
     fileHash := getMD5Hash(file)
@@ -54,8 +58,11 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    log.Println("Local Last-Modified: " + strconv.FormatInt(localLastModified, 10))
+
     // Download the file to local if it doesn't already exist
     if lastModified != localLastModified {
+        log.Println("Downloading remote")
         if err = getRemoteFile(file, fileHash); err != nil {
             returnError(500, err, w)
             return
